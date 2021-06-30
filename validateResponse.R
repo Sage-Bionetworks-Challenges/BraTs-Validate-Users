@@ -76,7 +76,8 @@ if (file.exists("tmp/after.csv")) {
             syn$invite_to_team(config$validated_teamID, id)
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
-              "The invitation has been sent, please accept and join the validated Team.<br><br>",
+              "An invitation to join the data access synapse team (BraTS 2021 Challenge Participants) has been sent, please accept and join.<br><br>",
+              "Once you join, you'll be able to download the BraTS 2021 Challenge training datset <a href='https://www.synapse.org/#!Synapse:syn25909708'>here</a>.",
               footer
             )
             cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "validate\n"), collapse = ","),
@@ -94,7 +95,7 @@ if (file.exists("tmp/after.csv")) {
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
               errorMsg, "<br>",
-              "Please double check your filled information that matches your synapse profile ",
+              "Please make sure the information you put into the google form matches your synapse profile ",
               "and submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
               footer
             )
@@ -124,7 +125,8 @@ if (file.exists("tmp/after.csv")) {
           if (usr %in% team2_members) {
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
-              "You are already in the validated team.<br><br>",
+              "You have already filled out the google form. You can access the",
+              " BraTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn25909708'>here</a>.<br><br>",
               footer
             )
             id <- syn$getUserProfile(usr)["ownerId"]
