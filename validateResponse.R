@@ -125,8 +125,8 @@ if (file.exists("tmp/after.csv")) {
           if (usr %in% team2_members) {
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
-              "You have already filled out the google form. You can access the",
-              " BraTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn25909708'>here</a>.<br><br>",
+              "You have already filled out the google form. You can access the ",
+              "BraTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn25909708'>here</a>.<br><br>",
               footer
             )
             id <- syn$getUserProfile(usr)["ownerId"]
@@ -142,9 +142,9 @@ if (file.exists("tmp/after.csv")) {
           } else { # if user not in either of team
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
-              "You are not in the preregistrant team<br><br>",
-              "Please register the challenge first and ",
-              "and submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
+              "You have not first registered with the BraTS Challenge prior to filling out the google form.<br><br>",
+              "Please <a href='https://www.synapse.org/#!Synapse:syn25829070/wiki/611101'>register</a> with the challenge first and then ",
+              "submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
               footer
             )
             id <- try(syn$getUserProfile(usr), silent = TRUE)["ownerId"] # hope user don't give crazy username, "null", "NUL", ""
