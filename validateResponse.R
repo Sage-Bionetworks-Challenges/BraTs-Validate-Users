@@ -68,7 +68,8 @@ if (file.exists("tmp/after.csv")) {
             as.character()
           b <- diff %>%
             filter(userName == usr) %>%
-            select(firstName, lastName, userName) %>%
+            # firstName, lastName, 
+            select(userName) %>%
             as.character()
 
           if (identical(a, b)) { # if validate
