@@ -18,18 +18,18 @@ if (file.exists("tmp/after.csv")) {
   new_data <- readr::read_csv("tmp/after.csv", col_types = cols(.default = "c"))
 
   if (!identical(old_data, new_data, ignore.environment = TRUE)) {
-
+    print (questions)
     # identify new submissions
     new_response <- anti_join(new_data, old_data, by = colnames(new_data)) %>%
       setNames(janitor::make_clean_names(colnames(.))) %>%
-      select(timestamp, questions[[1]], questions[[2]], questions[[3]]) %>%
+      select(timestamp, questions[[3]]) %>% #questions[[1]], questions[[2]],
       setNames(c("timestamp", "userName")) #"firstName", "lastName", 
 
     # replace na to "NA" just in case
     new_response[is.na(new_response)] <- "NA"
     # get new submission user names
     new_usernames <- unique(new_response$userName)
-
+    print (new_usernames)
     # find difference of users between two teams
     diff <- pd$DataFrame(
       cu$teams$team_members_diff(
