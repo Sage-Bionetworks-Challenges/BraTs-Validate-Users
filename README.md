@@ -12,7 +12,7 @@ Note: it is now not super friendly set up for non-R users and will improve if ne
 Clone the repo
 
 ```Bash
-git clone https://github.com/rrchai/BraTs-Validate-Users
+git clone https://github.com/Sage-Bionetworks-Challenges/BraTs-Validate-Users.git
 ```
 
 Initiate Conda Environment
