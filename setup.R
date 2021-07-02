@@ -53,6 +53,12 @@ syn$login(config$username, config$password, silent = TRUE)
 # Reading google sheet from response of form
 # need to successfully authenticate once in an interactive session
 # token will be store automatically; gs4_has_token()
+
+# FIXME: on instance, token is not stored and/or retreived successfully
+#        when in non-interactive mode. Using gs4_deauth() for now to
+#        prevent attempt of getting credentials.
+gs4_deauth()
+
 suppressMessages(
   response <- remove_empty(
     read_sheet(config$google_sheet_url, trim_ws = TRUE),
