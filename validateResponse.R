@@ -23,7 +23,7 @@ if (file.exists("tmp/after.csv")) {
     new_response <- anti_join(new_data, old_data, by = colnames(new_data)) %>%
       setNames(janitor::make_clean_names(colnames(.))) %>%
       select(timestamp, questions[[1]], questions[[2]], questions[[3]]) %>%
-      setNames(c("timestamp", "firstName", "lastName", "userName"))
+      setNames(c("timestamp", "userName")) #"firstName", "lastName", 
 
     # replace na to "NA" just in case
     new_response[is.na(new_response)] <- "NA"
