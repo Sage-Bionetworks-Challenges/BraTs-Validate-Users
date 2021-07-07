@@ -5,6 +5,14 @@ source("setup.R")
 dir.create("tmp", showWarnings = FALSE)
 dir.create("log", showWarnings = FALSE)
 # tools::md5sum("tmp_old.csv") != tools::md5sum("tmp_new.csv")
+
+invitations = c()
+team_invitations <- syn$get_team_open_invitations(config$validated_teamID)
+for (x in iterate(team_invitations)) {
+  #print (syn$getUserProfile(x$inviteeId)["userName"])
+  invitations <- c(invitations, syn$getUserProfile(x$inviteeId)["userName"])
+}
+
 if (!file.exists("tmp/before.csv")) {
   readr::write_csv(response, "tmp/before.csv")
 } else {
@@ -16,9 +24,8 @@ if (file.exists("tmp/after.csv")) {
   # read all characters to avoid errors for empty sheet
   old_data <- readr::read_csv("tmp/before.csv", col_types = cols(.default = "c"))
   new_data <- readr::read_csv("tmp/after.csv", col_types = cols(.default = "c"))
-
+  
   if (!identical(old_data, new_data, ignore.environment = TRUE)) {
-    print (questions)
     # identify new submissions
     new_response <- anti_join(new_data, old_data, by = colnames(new_data)) %>%
       setNames(janitor::make_clean_names(colnames(.))) %>%
@@ -29,7 +36,7 @@ if (file.exists("tmp/after.csv")) {
     new_response[is.na(new_response)] <- "NA"
     # get new submission user names
     new_usernames <- unique(new_response$userName)
-    print (new_usernames)
+
     # find difference of users between two teams
     diff <- pd$DataFrame(
       cu$teams$team_members_diff(
@@ -48,11 +55,13 @@ if (file.exists("tmp/after.csv")) {
     )
 
     team2_members <- setdiff(un$userName, diff$userName)
+    team2_members <- c(team2_members, invitations)
 
     footer <- "Thank you!<br><br>Challenge Administrator"
     # find user who is in the diff, aka users in the pre-registrant team, but not in the validate team
-    waitList_users <- intersect(new_usernames, diff$userName)
-
+    waitList_users <- setdiff(intersect(new_usernames, diff$userName), invitations)
+    print (waitList_users)
+    
     if (length(waitList_users) != 0) {
       invisible(
         lapply(waitList_users, function(usr) {
@@ -104,6 +113,7 @@ if (file.exists("tmp/after.csv")) {
               file = "log/out.log", append = TRUE
             )
           }
+          print (msg)
           invisible(
             syn$sendMessage(
               userIds = list(id), messageSubject = "Form Response Validation Results",
@@ -117,7 +127,9 @@ if (file.exists("tmp/after.csv")) {
     # find who is not in the diff:
     # they could not in the preregistrant team yet or
     # already in the validated team
-    not_waitList_users <- setdiff(new_usernames, diff$userName)
+    not_waitList_users <- setdiff(new_usernames, diff$userName) #setdiff(intersect(new_usernames, diff$userName), invitations)
+    print (not_waitList_users)
+    
 
     if (length(not_waitList_users) != 0) {
       invisible(
@@ -134,12 +146,14 @@ if (file.exists("tmp/after.csv")) {
             cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "already in the validated team\n"), collapse = ","),
               file = "log/out.log", append = TRUE
             )
-            invisible(
-              syn$sendMessage(
-                userIds = list(id), messageSubject = "Form Response Validation Results",
-                messageBody = msg, contentType = "text/html"
-              )
-            )
+            print ("Not sent")
+            print (msg)
+            #invisible(
+            #  syn$sendMessage(
+            #    userIds = list(id), messageSubject = "Form Response Validation Results",
+            #    messageBody = msg, contentType = "text/html"
+            #  )
+            #)
           } else { # if user not in either of team
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
@@ -159,6 +173,7 @@ if (file.exists("tmp/after.csv")) {
               cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "not in the preregistrant team\n"), collapse = ","),
                 file = "log/out.log", append = TRUE
               )
+              print (msg)
               invisible(
                 syn$sendMessage(
                   userIds = list(id), messageSubject = "Form Response Validation Results",

@@ -12,4 +12,4 @@ cron_add(
   id = "braTs", description = "validateJob"
 )
 # kill the job by id
-# cron_rm(id = "braTs")
+cron_rm(id = "braTs")

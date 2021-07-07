@@ -61,10 +61,11 @@ gs4_deauth()
 
 suppressMessages(
   response <- remove_empty(
-    read_sheet(config$google_sheet_url, trim_ws = TRUE),
+    read_sheet(config$google_sheet_url, trim_ws = TRUE, col_types = "c"),
     which = "rows"
   ) %>%
     setNames(janitor::make_clean_names(colnames(.)))
 )
+#print (rownames(response))
 
 if (any(sapply(questions, function(i) !i %in% colnames(response)))) stop("not all questions matched")
