@@ -87,7 +87,7 @@ if (file.exists("tmp/after.csv")) {
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
               "An invitation to join the data access synapse team (BraTS 2021 Challenge Participants) has been sent, please accept and join.<br><br>",
-              "Once you join, you'll be able to download the BraTS 2021 Challenge training datset <a href='https://www.synapse.org/#!Synapse:syn25909708'>here</a>.",
+              "Once you join, you'll be able to download the BraTS 2021 Challenge training datset <a href='https://www.synapse.org/#!Synapse:syn25953134'>here</a>.",
               footer
             )
             cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "validate\n"), collapse = ","),
@@ -138,8 +138,8 @@ if (file.exists("tmp/after.csv")) {
           if (usr %in% team2_members) {
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
-              "You have already filled out the google form. You can access the ",
-              "BraTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn25909708'>here</a>.<br><br>",
+              "You have already filled out the google form. If you have accepted the invitation to the data access team (BraTS 2021 Challenge Participants), you can access the ",
+              "BraTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn25953134'>here</a>.<br><br>",
               footer
             )
             id <- syn$getUserProfile(usr)["ownerId"]
@@ -148,12 +148,12 @@ if (file.exists("tmp/after.csv")) {
             )
             print ("Not sent")
             print (msg)
-            #invisible(
-            #  syn$sendMessage(
-            #    userIds = list(id), messageSubject = "Form Response Validation Results",
-            #    messageBody = msg, contentType = "text/html"
-            #  )
-            #)
+            invisible(
+              syn$sendMessage(
+                userIds = list(id), messageSubject = "Form Response Validation Results",
+                messageBody = msg, contentType = "text/html"
+              )
+            )
           } else { # if user not in either of team
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
