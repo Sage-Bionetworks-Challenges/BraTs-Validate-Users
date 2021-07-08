@@ -148,12 +148,12 @@ if (file.exists("tmp/after.csv")) {
             )
             print ("Not sent")
             print (msg)
-            invisible(
-              syn$sendMessage(
-                userIds = list(id), messageSubject = "Form Response Validation Results",
-                messageBody = msg, contentType = "text/html"
-              )
-            )
+            #invisible(
+            #  syn$sendMessage(
+            #    userIds = list(id), messageSubject = "Form Response Validation Results",
+            #    messageBody = msg, contentType = "text/html"
+            #  )
+            #)
           } else { # if user not in either of team
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
