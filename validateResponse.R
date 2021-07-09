@@ -158,7 +158,7 @@ if (file.exists("tmp/after.csv")) {
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
               "You have not first registered with the BraTS Challenge prior to filling out the google form.<br><br>",
-              "Please <a href='https://www.synapse.org/#!Synapse:syn25829070/wiki/611101'>register</a> with the challenge first and then ",
+              "Please <a href='https://www.synapse.org/#!Synapse:syn25829067/wiki/611497'>register</a> with the challenge first and then ",
               "submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
               footer
             )
