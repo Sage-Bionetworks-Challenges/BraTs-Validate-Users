@@ -60,11 +60,6 @@ if (file.exists("tmp/after.csv")) {
     footer <- "Thank you!<br><br>Challenge Administrator"
     # find user who is in the diff, aka users in the pre-registrant team, but not in the validate team
     waitList_users <- setdiff(intersect(new_usernames, diff$userName), invitations)
-
-    waitList_users <- waitList_users[waitList_users != "2229567087"]
-    waitList_users <- waitList_users[waitList_users != "2160502105"]
-    waitList_users <- waitList_users[waitList_users != "834799106"]
-
     print (waitList_users)
     
     if (length(waitList_users) != 0) {
@@ -73,7 +68,13 @@ if (file.exists("tmp/after.csv")) {
           
           #id = syn._findPrincipals(usr)[0]["ownerId"]
           
-          id <- syn$getUserProfile(usr)["ownerId"]
+          id <- tryCatch({
+              syn$getUserProfile(usr)["ownerId"]
+            }, error=function(err) {
+              syn$restGET(
+                sprintf("/userGroupHeaders?prefix=%s", usr)
+              )$children[[1]]$ownerId
+            })
 
           # compare first name, last name and user name
           a <- new_response %>%
