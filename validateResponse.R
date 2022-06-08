@@ -4,12 +4,10 @@ source("setup.R")
 # prepare detecting new submissions
 dir.create("tmp", showWarnings = FALSE)
 dir.create("log", showWarnings = FALSE)
-# tools::md5sum("tmp_old.csv") != tools::md5sum("tmp_new.csv")
 
 invitations = c()
 team_invitations <- syn$get_team_open_invitations(config$validated_teamID)
 for (x in iterate(team_invitations)) {
-  #print (syn$getUserProfile(x$inviteeId)["userName"])
   invitations <- c(invitations, syn$getUserProfile(x$inviteeId)["userName"])
 }
 
@@ -60,7 +58,6 @@ if (file.exists("tmp/after.csv")) {
     footer <- "Thank you!<br><br>Challenge Administrator"
     # find user who is in the diff, aka users in the pre-registrant team, but not in the validate team
     waitList_users <- setdiff(intersect(new_usernames, diff$userName), invitations)
-    print (waitList_users)
     
     `%!in%` <- Negate(`%in%`)
     if (length(waitList_users) != 0) {
@@ -124,7 +121,6 @@ if (file.exists("tmp/after.csv")) {
                   file = "log/out.log", append = TRUE
               )
             }
-            print (msg)
             invisible(
               syn$sendMessage(
                 userIds = list(id), messageSubject = "Form Response Validation Results",
@@ -148,13 +144,14 @@ if (file.exists("tmp/after.csv")) {
       invisible(
         lapply(not_waitList_users, function(usr) {
           # if users not in the pre-registrant team, but already in the validate team, like admin
+          # Email will not be sent
           if (usr %in% team2_members) {
-            msg <- paste0(
-              "Hello ", usr, ",<br><br>",
-              "You have already filled out the google form. If you have accepted the invitation to the data access team (BraTS 2021 Challenge Participants), you can access the ",
-              "BraTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn25953134'>here</a>.<br><br>",
-              footer
-            )
+            # msg <- paste0(
+            #   "Hello ", usr, ",<br><br>",
+            #   "You have already filled out the google form. If you have accepted the invitation to the data access team (BraTS 2021 Challenge Participants), you can access the ",
+            #   "BraTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn25953134'>here</a>.<br><br>",
+            #   footer
+            # )
             
             id <- tryCatch({
               syn$getUserProfile(usr)["ownerId"]
@@ -166,19 +163,11 @@ if (file.exists("tmp/after.csv")) {
             cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "already in the validated team\n"), collapse = ","),
               file = "log/out.log", append = TRUE
             )
-            print ("Not sent")
-            print (msg)
-            #invisible(
-            #  syn$sendMessage(
-            #    userIds = list(id), messageSubject = "Form Response Validation Results",
-            #    messageBody = msg, contentType = "text/html"
-            #  )
-            #)
           } else { # if user not in either of team
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
               "You have not first registered with the BraTS Challenge prior to filling out the google form.<br><br>",
-              "Please <a href='https://www.synapse.org/#!Synapse:syn25829067/wiki/611497'>register</a> with the challenge first and then ",
+              "Please <a href='https://www.synapse.org/brats'>register</a> with the challenge first and then ",
               "submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
               footer
             )
@@ -203,7 +192,6 @@ if (file.exists("tmp/after.csv")) {
               cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "not in the preregistrant team\n"), collapse = ","),
                 file = "log/out.log", append = TRUE
               )
-              print (msg)
               invisible(
                 syn$sendMessage(
                   userIds = list(id), messageSubject = "Form Response Validation Results",
