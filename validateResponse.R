@@ -189,6 +189,7 @@ if (file.exists("tmp/after.csv")) {
               )
             }
           }
+          Sys.sleep(1)
         })
       )
     }
