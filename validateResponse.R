@@ -62,6 +62,7 @@ if (file.exists("tmp/after.csv")) {
     waitList_users <- setdiff(intersect(new_usernames, diff$userName), invitations)
     print (waitList_users)
     
+    `%!in%` <- Negate(`%in%`)
     if (length(waitList_users) != 0) {
       invisible(
         lapply(waitList_users, function(usr) {
@@ -69,65 +70,69 @@ if (file.exists("tmp/after.csv")) {
           #id = syn._findPrincipals(usr)[0]["ownerId"]
           
           id <- tryCatch({
-              syn$getUserProfile(usr)["ownerId"]
-            }, error=function(err) {
-              syn$restGET(
-                sprintf("/userGroupHeaders?prefix=%s", usr)
-              )$children[[1]]$ownerId
-            })
-
-          # compare first name, last name and user name
-          a <- new_response %>%
-            filter(userName == usr) %>%
-            # only take the latest submission
-            filter(timestamp == max(timestamp)) %>%
-            select(-timestamp) %>%
-            as.character()
-          b <- diff %>%
-            filter(userName == usr) %>%
-            # firstName, lastName, 
-            select(userName) %>%
-            as.character()
-
-          if (identical(a, b)) { # if validate
-            # invite to the team
-            syn$invite_to_team(config$validated_teamID, id)
-            msg <- paste0(
-              "Hello ", usr, ",<br><br>",
-              "An invitation to join the data access synapse team (BraTS 2021 Challenge Participants) has been sent, please accept and join.<br><br>",
-              "Once you join, you'll be able to download the BraTS 2021 Challenge training datset <a href='https://www.synapse.org/#!Synapse:syn25953134'>here</a>.",
-              footer
-            )
-            cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "validate\n"), collapse = ","),
-              file = "log/out.log", append = TRUE
-            )
-          } else { # if not validate
-            inx <- which(a != b)
-            errorMsg <- sapply(inx, function(i) {
-              paste0(
-                colnames(new_response)[-1][i], ": '",
-                a[i], "' does not match the '",
-                b[i], "' in your synapse profile<br>"
+                  syn$getUserProfile(usr)["ownerId"]
+                }, error=function(err) {
+                  syn$restGET(
+                    sprintf("/userGroupHeaders?prefix=%s", usr)
+                  )$children[[1]]$ownerId
+                })
+          
+          if (id %!in% c("3444144", "3444192", "3445975", "3444607", "3447173", "3447272", "3447296")) {  # blacklisted IDs
+            
+            # compare first name, last name and user name
+            a <- new_response %>%
+              filter(userName == usr) %>%
+              # only take the latest submission
+              filter(timestamp == max(timestamp)) %>%
+              select(-timestamp) %>%
+              as.character()
+            b <- diff %>%
+              filter(userName == usr) %>%
+              # firstName, lastName, 
+              select(userName) %>%
+              as.character()
+            
+            if (identical(a, b)) { # if validate
+              # invite to the team
+              syn$invite_to_team(config$validated_teamID, id)
+              msg <- paste0(
+                "Hello ", usr, ",<br><br>",
+                "An invitation to join the data access synapse team (BraTS Challenge Participants) has been sent, please accept and join.<br><br>",
+                "Once you join, you'll be able to download the BraTS 2021 Challenge training datset <a href='https://www.synapse.org/#!Synapse:syn25953134'>here</a>.",
+                footer
               )
-            }) %>% paste0(collapse = "")
-            msg <- paste0(
-              "Hello ", usr, ",<br><br>",
-              errorMsg, "<br>",
-              "Please make sure the information you put into the google form matches your synapse profile ",
-              "and submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
-              footer
-            )
-            cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "mismatched names\n"), collapse = ","),
-              file = "log/out.log", append = TRUE
+              cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "validate\n"), collapse = ","),
+                  file = "log/out.log", append = TRUE
+              )
+            } else { # if not validate
+              inx <- which(a != b)
+              errorMsg <- sapply(inx, function(i) {
+                paste0(
+                  colnames(new_response)[-1][i], ": '",
+                  a[i], "' does not match the '",
+                  b[i], "' in your synapse profile<br>"
+                )
+              }) %>% paste0(collapse = "")
+              msg <- paste0(
+                "Hello ", usr, ",<br><br>",
+                errorMsg, "<br>",
+                "Please make sure the information you put into the google form matches your synapse profile ",
+                "and submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
+                footer
+              )
+              cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "mismatched names\n"), collapse = ","),
+                  file = "log/out.log", append = TRUE
+              )
+            }
+            print (msg)
+            invisible(
+              syn$sendMessage(
+                userIds = list(id), messageSubject = "Form Response Validation Results",
+                messageBody = msg, contentType = "text/html"
+              )
             )
           }
-          print (msg)
-          invisible(
-            syn$sendMessage(
-              userIds = list(id), messageSubject = "Form Response Validation Results",
-              messageBody = msg, contentType = "text/html"
-            )
-          )
+          Sys.sleep(1)
         })
       )
     }
@@ -150,7 +155,14 @@ if (file.exists("tmp/after.csv")) {
               "BraTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn25953134'>here</a>.<br><br>",
               footer
             )
-            id <- syn$getUserProfile(usr)["ownerId"]
+            
+            id <- tryCatch({
+              syn$getUserProfile(usr)["ownerId"]
+            }, error=function(err) {
+              syn$restGET(
+                sprintf("/userGroupHeaders?prefix=%s", usr)
+              )$children[[1]]$ownerId
+            })
             cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "already in the validated team\n"), collapse = ","),
               file = "log/out.log", append = TRUE
             )
@@ -170,7 +182,17 @@ if (file.exists("tmp/after.csv")) {
               "submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
               footer
             )
-            id <- try(syn$getUserProfile(usr), silent = TRUE)["ownerId"] # hope user don't give crazy username, "null", "NUL", ""
+            id <- tryCatch({
+              syn$getUserProfile(usr)["ownerId"]
+            }, error=function(err) {
+              tryCatch({
+                syn$restGET(
+                  sprintf("/userGroupHeaders?prefix=%s", usr)
+                )$children[[1]]$ownerId  
+              }, error=function(err2) {
+                NA
+              })
+            })
 
             if (is.na(id)) {
               # if username is incorrect, then you wont' get an email, since we cant get their userId
@@ -190,6 +212,7 @@ if (file.exists("tmp/after.csv")) {
               )
             }
           }
+          Sys.sleep(1)
         })
       )
     }
