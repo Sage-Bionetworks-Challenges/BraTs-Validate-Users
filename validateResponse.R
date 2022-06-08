@@ -9,7 +9,6 @@ dir.create("log", showWarnings = FALSE)
 invitations = c()
 team_invitations <- syn$get_team_open_invitations(config$validated_teamID)
 for (x in iterate(team_invitations)) {
-  #print (syn$getUserProfile(x$inviteeId)["userName"])
   invitations <- c(invitations, syn$getUserProfile(x$inviteeId)["userName"])
 }
 
@@ -60,13 +59,9 @@ if (file.exists("tmp/after.csv")) {
     footer <- "Thank you!<br><br>Challenge Administrator"
     # find user who is in the diff, aka users in the pre-registrant team, but not in the validate team
     waitList_users <- setdiff(intersect(new_usernames, diff$userName), invitations)
-    print (waitList_users)
-    
     if (length(waitList_users) != 0) {
       invisible(
         lapply(waitList_users, function(usr) {
-          
-          #id = syn._findPrincipals(usr)[0]["ownerId"]
           
           id <- tryCatch({
               syn$getUserProfile(usr)["ownerId"]
@@ -121,7 +116,6 @@ if (file.exists("tmp/after.csv")) {
               file = "log/out.log", append = TRUE
             )
           }
-          print (msg)
           invisible(
             syn$sendMessage(
               userIds = list(id), messageSubject = "Form Response Validation Results",
@@ -136,32 +130,28 @@ if (file.exists("tmp/after.csv")) {
     # they could not in the preregistrant team yet or
     # already in the validated team
     not_waitList_users <- setdiff(new_usernames, diff$userName) #setdiff(intersect(new_usernames, diff$userName), invitations)
-    print (not_waitList_users)
-    
-
     if (length(not_waitList_users) != 0) {
       invisible(
         lapply(not_waitList_users, function(usr) {
           # if users not in the pre-registrant team, but already in the validate team, like admin
+          # Email will not be sent
           if (usr %in% team2_members) {
-            msg <- paste0(
-              "Hello ", usr, ",<br><br>",
-              "You have already filled out the google form. If you have accepted the invitation to the data access team (FeTS Challenge Participants), you can access the ",
-              "FeTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn29264504'>here</a>.<br><br>",
-              footer
-            )
-            id <- syn$getUserProfile(usr)["ownerId"]
+            # msg <- paste0(
+            #   "Hello ", usr, ",<br><br>",
+            #   "You have already filled out the google form. If you have accepted the invitation to the data access team (FeTS Challenge Participants), you can access the ",
+            #   "FeTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn29264504'>here</a>.<br><br>",
+            #   footer
+            # )
+            id <- tryCatch({
+              syn$getUserProfile(usr)["ownerId"]
+            }, error=function(err) {
+              syn$restGET(
+                sprintf("/userGroupHeaders?prefix=%s", usr)
+              )$children[[1]]$ownerId
+            })
             cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "already in the validated team\n"), collapse = ","),
               file = "log/out.log", append = TRUE
             )
-            print ("Not sent")
-            print (msg)
-            #invisible(
-            #  syn$sendMessage(
-            #    userIds = list(id), messageSubject = "Form Response Validation Results",
-            #    messageBody = msg, contentType = "text/html"
-            #  )
-            #)
           } else { # if user not in either of team
             msg <- paste0(
               "Hello ", usr, ",<br><br>",
@@ -170,7 +160,17 @@ if (file.exists("tmp/after.csv")) {
               "submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
               footer
             )
-            id <- try(syn$getUserProfile(usr), silent = TRUE)["ownerId"] # hope user don't give crazy username, "null", "NUL", ""
+            id <- tryCatch({
+              syn$getUserProfile(usr)["ownerId"]
+            }, error=function(err) {
+              tryCatch({
+                syn$restGET(
+                  sprintf("/userGroupHeaders?prefix=%s", usr)
+                )$children[[1]]$ownerId  
+              }, error=function(err2) {
+                NA
+              })
+            })
 
             if (is.na(id)) {
               # if username is incorrect, then you wont' get an email, since we cant get their userId
@@ -181,7 +181,6 @@ if (file.exists("tmp/after.csv")) {
               cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "not in the preregistrant team\n"), collapse = ","),
                 file = "log/out.log", append = TRUE
               )
-              print (msg)
               invisible(
                 syn$sendMessage(
                   userIds = list(id), messageSubject = "Form Response Validation Results",
