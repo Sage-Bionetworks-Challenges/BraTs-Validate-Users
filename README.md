@@ -1,4 +1,4 @@
-# BraTs-Validate-Usersif
+# BraTs-Validate-Users
 
 This is a tool to monitor google form responses. Technically, it is watching the google sheet that saves the google form's responses. The tool will detect for new submissions every minute and validate the new submission's information by followings:
 
@@ -9,32 +9,42 @@ This is a tool to monitor google form responses. Technically, it is watching the
 Note: it is now not super friendly set up for non-R users and will improve if needed.
 ## Installation
 
-Clone the repo
+* Clone the repo
 
-```Bash
-git clone https://github.com/Sage-Bionetworks-Challenges/BraTs-Validate-Users.git
-```
+    ```Bash
+    git clone https://github.com/Sage-Bionetworks-Challenges/BraTs-Validate-Users.git
+    ```
 
-Initiate Conda Environment
+* Install Miniconda
 
-```Bash
-conda env create -f environment.yml
-conda activate brats-tool
-```
+    ```Bash
+    wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.3.1-0-Linux-x86_64.sh
+    bash Miniconda3-py310_23.3.1-0-Linux-x86_64.sh
+    rm Miniconda3-py310_23.3.1-0-Linux-x86_64.sh
+    ```
 
-Install r libraries
+    Restart the terminal to apply the changes.
 
-```Bash
-RScript requirements.R
-```
+* Initiate Conda Environment
 
-Please copy and **modify** the information in `config.R`, such as 'google form questions' and 'gmail address'. After all information is filled, set the file to read only.
+    ```Bash
+    conda env create -f environment.yml
+    conda activate brats-tool
+    ```
 
-```
-cp config_example.R config.R
-vi config.R
-chmod 400 config.R
-```
+* Install r libraries
+
+    ```Bash
+    RScript requirements.R
+    ```
+
+    Please copy and **modify** the information in `config.R`, such as 'google form questions' and 'gmail address'. After all information is filled, set the file to read only.
+
+    ```
+    cp config_example.R config.R
+    vi config.R
+    chmod 400 config.R
+    ```
 
 ## Usage
 
