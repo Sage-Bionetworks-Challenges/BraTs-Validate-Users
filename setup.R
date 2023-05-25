@@ -31,15 +31,6 @@ questions <- lapply(
 # hide warning
 options(gargle_oauth_email = config$your_email_address) # for googlesheet
 
-# load py modules
-#original_path <- Sys.getenv("PATH")
-#print (original_path)
-#Sys.setenv(PATH = paste("/usr/local/Caskroom/miniconda/base/condabin/conda", original_path, sep = ":"))
-#original_path <- Sys.getenv("PATH")
-#print (original_path)
-
-#options(reticulate.conda_binary = "/usr/local/Caskroom/miniconda/base/condabin/conda")
-#use_python(python="/usr/local/bin/conda", required=TRUE)
 use_condaenv("brats-tool", required = TRUE)
 
 cu <- reticulate::import("challengeutils")
@@ -66,6 +57,5 @@ suppressMessages(
   ) %>%
     setNames(janitor::make_clean_names(colnames(.)))
 )
-#print (rownames(response))
 
 if (any(sapply(questions, function(i) !i %in% colnames(response)))) stop("not all questions matched")
