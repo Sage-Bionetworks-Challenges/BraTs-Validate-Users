@@ -20,18 +20,25 @@ if (!file.exists("tmp/before.csv")) {
 # validation ----------------------------------------------------------
 if (file.exists("tmp/after.csv")) {
   # read all characters to avoid errors for empty sheet
-  old_data <- readr::read_csv("tmp/before.csv", col_types = cols(.default = "c"))
-  new_data <- readr::read_csv("tmp/after.csv", col_types = cols(.default = "c"))
+  old_data <- readr::read_csv(
+    "tmp/before.csv", 
+    col_types = cols(.default = "c")
+  )
+  new_data <- readr::read_csv(
+    "tmp/after.csv", 
+    col_types = cols(.default = "c")
+  )
   
   if (!identical(old_data, new_data, ignore.environment = TRUE)) {
     # identify new submissions
     new_response <- anti_join(new_data, old_data, by = colnames(new_data)) %>%
       setNames(janitor::make_clean_names(colnames(.))) %>%
-      select(timestamp, questions[[3]]) %>% #questions[[1]], questions[[2]],
-      setNames(c("timestamp", "userName")) #"firstName", "lastName", 
+      select(timestamp, questions[[3]]) %>% 
+      setNames(c("timestamp", "userName")) 
 
     # replace na to "NA" just in case
     new_response[is.na(new_response)] <- "NA"
+
     # get new submission user names
     new_usernames <- unique(new_response$userName)
 
@@ -43,7 +50,6 @@ if (file.exists("tmp/after.csv")) {
         config$validated_teamID
       )
     )
-
     un <- pd$DataFrame(
       cu$teams$team_members_union(
         syn,
@@ -51,31 +57,43 @@ if (file.exists("tmp/after.csv")) {
         config$validated_teamID
       )
     )
-
     team2_members <- setdiff(un$userName, diff$userName)
     team2_members <- c(team2_members, invitations)
 
-    footer <- "Thank you!<br><br>Challenge Administrator"
-    # find user who is in the diff, aka users in the pre-registrant team, but not in the validate team
-    waitList_users <- setdiff(intersect(new_usernames, diff$userName), invitations)
-    
-    `%!in%` <- Negate(`%in%`)
+    # find user who is in the diff, aka users in the pre-registrant team, 
+    # but not in the validate team
+    waitList_users <- intersect(new_usernames, diff$userName)
     if (length(waitList_users) != 0) {
       invisible(
         lapply(waitList_users, function(usr) {
-          
-          #id = syn._findPrincipals(usr)[0]["ownerId"]
-          
           id <- tryCatch({
-                  syn$getUserProfile(usr)["ownerId"]
-                }, error=function(err) {
-                  syn$restGET(
-                    sprintf("/userGroupHeaders?prefix=%s", usr)
-                  )$children[[1]]$ownerId
-                })
+              syn$getUserProfile(usr)["ownerId"]
+            }, error=function(err) {
+              syn$restGET(
+                sprintf("/userGroupHeaders?prefix=%s", usr)
+              )$children[[1]]$ownerId
+            })
           
-          if (id %!in% c("3444144", "3444192", "3445975", "3444607", "3447173", "3447272", "3447296")) {  # blacklisted IDs
-            
+          if (usr %in% invitations) {
+            subject <- "BraTS 2023 Data Access Form - Duplicate request"
+            msg <- paste0(
+              "Dear ", usr, ",<br><br>",
+              "An email invite to join the BraTS 2023 Data Access team has already been sent.<br/><br/>",
+              "Please check your inbox or spam folder for an email from BraTS bot (brats-bot@synapse.org). ",
+              "You may also respond to the invite on Synapse from your ",
+              "<a href='https://www.synapse.org/#!Profile:", id, "/teams'>Teams page</a>.",
+              "<br/><br/> Only after joining the Data Access team will you have access to the ",
+              "<a href='https://www.synapse.org/#!Synapse:syn51156910/files/'>BraTS 2023 data</a>."
+              
+            )
+            invisible(
+              syn$sendMessage(
+                userIds = list(id), messageSubject = subject,
+                messageBody = msg, contentType = "text/html"
+              )
+            )
+            log <- "pending invite response\n"
+          } else {
             # compare first name, last name and user name
             a <- new_response %>%
               filter(userName == usr) %>%
@@ -91,43 +109,40 @@ if (file.exists("tmp/after.csv")) {
             
             if (identical(a, b)) { # if validate
               # invite to the team
-              syn$invite_to_team(config$validated_teamID, id)
               msg <- paste0(
-                "Hello ", usr, ",<br><br>",
-                "An invitation to join the data access synapse team (BraTS Challenge Participants) has been sent, please accept and join.<br><br>",
-                "Once you join, you'll be able to download the BraTS 2021 Challenge training datset <a href='https://www.synapse.org/#!Synapse:syn25953134'>here</a>.",
-                footer
+                "Thank you for your interest in the BraTS 2023 Challenge! <br/><br/>",
+                "Once you click 'Join', you will be granted access to the ",
+                "<a href='https://www.synapse.org/#!Synapse:syn51156910/files/'>BraTS 2023 data</a>."
               )
-              cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "validate\n"), collapse = ","),
-                  file = "log/out.log", append = TRUE
-              )
+              syn$invite_to_team(config$validated_teamID, user=id, message=msg)
+              log <- "invite sent\n"
             } else { # if not validate
               inx <- which(a != b)
               errorMsg <- sapply(inx, function(i) {
                 paste0(
                   colnames(new_response)[-1][i], ": '",
                   a[i], "' does not match the '",
-                  b[i], "' in your synapse profile<br>"
+                  b[i], "' in your Synapse profile<br>"
                 )
               }) %>% paste0(collapse = "")
               msg <- paste0(
-                "Hello ", usr, ",<br><br>",
+                "Dear ", usr, ",<br><br>",
                 errorMsg, "<br>",
-                "Please make sure the information you put into the google form matches your synapse profile ",
-                "and submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
-                footer
+                "The information provided in the BraTS 2023 Data Access Form does not match any Synapse profiles. ",
+                "Please try <a href='", config$google_form_url, "' target='_blank'>submitting the form</a> again."
               )
-              cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "mismatched names\n"), collapse = ","),
-                  file = "log/out.log", append = TRUE
+              invisible(
+                syn$sendMessage(
+                  userIds = list(id), messageSubject = "BraTS 2023 Data Access Form - Errors Found",
+                  messageBody = msg, contentType = "text/html"
+                )
               )
+              log <- "mismatched names\n"
             }
-            invisible(
-              syn$sendMessage(
-                userIds = list(id), messageSubject = "Form Response Validation Results",
-                messageBody = msg, contentType = "text/html"
-              )
-            )
           }
+          cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, log), collapse = ","),
+            file = "log/out.log", append = TRUE
+          )
           Sys.sleep(1)
         })
       )
@@ -136,70 +151,64 @@ if (file.exists("tmp/after.csv")) {
     # find who is not in the diff:
     # they could not in the preregistrant team yet or
     # already in the validated team
-    not_waitList_users <- setdiff(new_usernames, diff$userName) #setdiff(intersect(new_usernames, diff$userName), invitations)
-    print (not_waitList_users)
-    
-
+    not_waitList_users <- setdiff(new_usernames, diff$userName)
     if (length(not_waitList_users) != 0) {
       invisible(
         lapply(not_waitList_users, function(usr) {
+          id <- tryCatch({
+            syn$getUserProfile(usr)["ownerId"]
+          }, error=function(err) {
+            tryCatch({
+              syn$restGET(
+                sprintf("/userGroupHeaders?prefix=%s", usr)
+              )$children[[1]]$ownerId  
+            }, error=function(err2) {
+              NA
+            })
+          })
+          
           # if users not in the pre-registrant team, but already in the validate team, like admin
           # Email will not be sent
           if (usr %in% team2_members) {
-            # msg <- paste0(
-            #   "Hello ", usr, ",<br><br>",
-            #   "You have already filled out the google form. If you have accepted the invitation to the data access team (BraTS 2021 Challenge Participants), you can access the ",
-            #   "BraTS Challenge training data <a href='https://www.synapse.org/#!Synapse:syn25953134'>here</a>.<br><br>",
-            #   footer
-            # )
-            
-            id <- tryCatch({
-              syn$getUserProfile(usr)["ownerId"]
-            }, error=function(err) {
-              syn$restGET(
-                sprintf("/userGroupHeaders?prefix=%s", usr)
-              )$children[[1]]$ownerId
-            })
-            cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "already in the validated team\n"), collapse = ","),
-              file = "log/out.log", append = TRUE
-            )
-          } else { # if user not in either of team
+            subject <- "BraTS 2023 Data Access Form - Access already granted"
             msg <- paste0(
-              "Hello ", usr, ",<br><br>",
-              "You have not first registered with the BraTS Challenge prior to filling out the google form.<br><br>",
-              "Please <a href='https://www.synapse.org/brats'>register</a> with the challenge first and then ",
-              "submit the <a href='", config$google_form_url, "' target='_blank'>google form</a>", " again.<br><br>",
-              footer
+              "Dear ", usr, ",<br><br>",
+              "You have already joined the BraTS 2023 Data Access team. You may now access the ",
+              "<a href='https://www.synapse.org/#!Synapse:syn51156910/files/'>BraTS 2023 data</a>."
             )
-            id <- tryCatch({
-              syn$getUserProfile(usr)["ownerId"]
-            }, error=function(err) {
-              tryCatch({
-                syn$restGET(
-                  sprintf("/userGroupHeaders?prefix=%s", usr)
-                )$children[[1]]$ownerId  
-              }, error=function(err2) {
-                NA
-              })
-            })
-
+            invisible(
+              syn$sendMessage(
+                userIds = list(id), messageSubject = subject,
+                messageBody = msg, contentType = "text/html"
+              )
+            )
+            log <- "access already granted\n"
+          } else { # if user not in either of team
+    
             if (is.na(id)) {
               # if username is incorrect, then you wont' get an email, since we cant get their userId
-              cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "username not found\n"), collapse = ","),
-                file = "log/out.log", append = TRUE
-              )
+              log <- "username not found\n"
             } else {
-              cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, "not in the preregistrant team\n"), collapse = ","),
-                file = "log/out.log", append = TRUE
+              subject <- "BraTS 2023 Data Access Form - Errors Found"
+              msg <- paste0(
+                "Dear ", usr, ",<br><br>",
+                "We were unable to find your username among the list of registrants for the BraTS 2023 Challenge.<br/><br/>",
+                "If you are still interested in gaining access to the BraTS 2023 data, please ",
+                "<a href='https://www.synapse.org/brats'>register for the challenge</a>, then submit the ",
+                "<a href='", config$google_form_url, "' target='_blank'>BraTS 2023 Data Access Form</a> again."
               )
               invisible(
                 syn$sendMessage(
-                  userIds = list(id), messageSubject = "Form Response Validation Results",
+                  userIds = list(id), messageSubject = subject,
                   messageBody = msg, contentType = "text/html"
                 )
               )
+              log <- "missing registration\n"
             }
           }
+          cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, log), collapse = ","),
+            file = "log/out.log", append = TRUE
+          )
           Sys.sleep(1)
         })
       )
