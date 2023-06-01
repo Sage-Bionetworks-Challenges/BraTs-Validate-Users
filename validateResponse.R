@@ -40,7 +40,8 @@ if (file.exists("tmp/after.csv")) {
     new_response[is.na(new_response)] <- "NA"
 
     # get new submission user names
-    new_usernames <- unique(new_response$userName)
+    new_usernames <- unique(new_response$userName) %>%
+      stringr::str_replace("@synapse.org", "")
 
     # find difference of users between two teams
     diff <- pd$DataFrame(
