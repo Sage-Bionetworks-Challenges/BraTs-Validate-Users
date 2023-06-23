@@ -68,7 +68,7 @@ if (file.exists("tmp/after.csv")) {
       invisible(
         lapply(waitList_users, function(usr) {
           id <- tryCatch({
-              syn$getUserProfile(usr)["ownerId"]
+              syn$getUserProfile(usr)$ownerId
             }, error=function(err) {
               syn$restGET(
                 sprintf("/userGroupHeaders?prefix=%s", usr)
@@ -157,7 +157,7 @@ if (file.exists("tmp/after.csv")) {
       invisible(
         lapply(not_waitList_users, function(usr) {
           id <- tryCatch({
-            syn$getUserProfile(usr)["ownerId"]
+            syn$getUserProfile(usr)$ownerId
           }, error=function(err) {
             tryCatch({
               syn$restGET(
