@@ -9,8 +9,7 @@ config <- list(
   preregistrant_teamID = "", # registrant team ID
   validated_teamID = "", # validated team ID
   your_email_address = "", # email address that have access to google form/sheet
-  username = "", # <username of your synapse>
-  password = "" # <password of your synapse>
+  pat = "", # synapse PAT which can be generated here: https://www.synapse.org/#!PersonalAccessTokens:0
 )
 
 #### example
@@ -23,6 +22,5 @@ config <- list(
 #   pregistrant_teamID = "3332433",
 #   validate_teamID = "3435342",
 #   your_email_address = "brats@sagebase.org",
-#   username = "hworld",
-#   password = "helloworld2132"
+#   pat = "123456abcd"
 # )

@@ -39,7 +39,7 @@ synapseclient <- reticulate::import("synapseclient")
 
 # log in to synapse
 syn <- synapseclient$Synapse()
-syn$login(config$username, config$password, silent = TRUE)
+syn$login(authToken = config$pat, silent = TRUE)
 
 # Reading google sheet from response of form
 # need to successfully authenticate once in an interactive session
