@@ -35,7 +35,7 @@ Note: it is now not super friendly set up for non-R users and will improve if ne
 * Install r libraries
 
     ```Bash
-    RScript requirements.R
+    Rscript requirements.R
     ```
 
     Please copy and **modify** the information in `config.R`, such as 'google form questions' and 'gmail address'. After all information is filled, set the file to read only.
