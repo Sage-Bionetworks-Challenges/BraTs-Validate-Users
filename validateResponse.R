@@ -80,7 +80,7 @@ if (file.exists("tmp/after.csv")) {
             msg <- paste0(
               "Dear ", usr, ",<br><br>",
               "An email invite to join the BraTS 2023 Data Access team has already been sent.<br/><br/>",
-              "Please check your inbox or spam folder for an email from BraTS bot (brats-bot@synapse.org). ",
+              "Please check your inbox or spam folder for an email from BraTS bot (brats-fets-bot@synapse.org). ",
               "You may also respond to the invite on Synapse from your ",
               "<a href='https://www.synapse.org/#!Profile:", id, "/teams'>Teams page</a>.",
               "<br/><br/> Only after joining the Data Access team will you have access to the ",
@@ -174,8 +174,8 @@ if (file.exists("tmp/after.csv")) {
             subject <- "BraTS 2023 Data Access Form - Access already granted"
             msg <- paste0(
               "Dear ", usr, ",<br><br>",
-              "You have already joined the BraTS 2023 Data Access team. You may now access the ",
-              "<a href='https://www.synapse.org/#!Synapse:syn51156910/files/'>BraTS 2023 data</a>."
+              "You have already joined the BraTS 2023 Data Access team. You may access the ",
+              "<a href='https://www.synapse.org/#!Synapse:syn51156910/files/'>BraTS 2023 data here</a>."
             )
             invisible(
               syn$sendMessage(
@@ -193,8 +193,8 @@ if (file.exists("tmp/after.csv")) {
               subject <- "BraTS 2023 Data Access Form - Errors Found"
               msg <- paste0(
                 "Dear ", usr, ",<br><br>",
-                "We were unable to find your username among the list of registrants for the BraTS 2023 Challenge.<br/><br/>",
-                "If you are still interested in gaining access to the BraTS 2023 data, please ",
+                "You must first register and agree to the Terms and Conditions of the BraTS 2023 Challenge.",
+                "<br/><br/>If you are still interested in gaining acces to the BraTS 2023 data, please ",
                 "<a href='https://www.synapse.org/brats'>register for the challenge</a>, then submit the ",
                 "<a href='", config$google_form_url, "' target='_blank'>BraTS 2023 Data Access Form</a> again."
               )
