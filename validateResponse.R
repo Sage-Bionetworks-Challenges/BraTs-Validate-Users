@@ -17,6 +17,9 @@ if (!file.exists("tmp/before.csv")) {
   readr::write_csv(response, "tmp/after.csv")
 }
 
+# get validated_teamID name
+validated_team_name <- syn$getTeam(config$validated_teamID)$name
+
 # validation ----------------------------------------------------------
 if (file.exists("tmp/after.csv")) {
   # read all characters to avoid errors for empty sheet
@@ -47,26 +50,27 @@ if (file.exists("tmp/after.csv")) {
     diff <- pd$DataFrame(
       cu$teams$team_members_diff(
         syn,
-        config$preregistrant_teamID,
+        config$challenge_teamID,
         config$validated_teamID
       )
     )
     un <- pd$DataFrame(
       cu$teams$team_members_union(
         syn,
-        config$preregistrant_teamID,
+        config$challenge_teamID,
         config$validated_teamID
       )
     )
     team2_members <- setdiff(un$userName, diff$userName)
     team2_members <- c(team2_members, invitations)
 
-    # find user who is in the diff, aka users in the pre-registrant team, 
-    # but not in the validate team
+    # find user who is in the diff, aka users in the challenge team, 
+    # but not in the data access team
     waitList_users <- intersect(new_usernames, diff$userName)
     if (length(waitList_users) != 0) {
       invisible(
         lapply(waitList_users, function(usr) {
+          Sys.sleep(0.5)
           id <- tryCatch({
               syn$getUserProfile(usr)$ownerId
             }, error=function(err) {
@@ -76,15 +80,15 @@ if (file.exists("tmp/after.csv")) {
             })
           
           if (usr %in% invitations) {
-            subject <- "BraTS 2023 Data Access Form - Duplicate request"
+            subject <- paste0(config$challenge_name, " Data Access Form - Duplicate request")
             msg <- paste0(
               "Dear ", usr, ",<br><br>",
-              "An email invite to join the BraTS 2023 Data Access team has already been sent.<br/><br/>",
+              "An email invite to join the ", validated_team_name, " has already been sent.<br/><br/>",
               "Please check your inbox or spam folder for an email from BraTS bot (brats-fets-bot@synapse.org). ",
               "You may also respond to the invite on Synapse from your ",
               "<a href='https://www.synapse.org/#!Profile:", id, "/teams'>Teams page</a>.",
               "<br/><br/> Only after joining the Data Access team will you have access to the ",
-              "<a href='https://www.synapse.org/#!Synapse:syn51156910/files/'>BraTS 2023 data</a>."
+              "<a href='https://www.synapse.org/#!Synapse:", config$folder_synId,"'>challenge data</a>."
               
             )
             invisible(
@@ -111,9 +115,9 @@ if (file.exists("tmp/after.csv")) {
             if (identical(a, b)) { # if validate
               # invite to the team
               msg <- paste0(
-                "Thank you for your interest in the BraTS 2023 Challenge! <br/><br/>",
+                "Thank you for your interest in the ", config$challenge_name,"! <br/><br/>",
                 "Once you click 'Join', you will be granted access to the ",
-                "<a href='https://www.synapse.org/#!Synapse:syn51156910/files/'>BraTS 2023 data</a>."
+                "<a href='https://www.synapse.org/#!Synapse:", config$folder_synId,"'>challenge data</a>."
               )
               syn$invite_to_team(config$validated_teamID, user=id, message=msg)
               log <- "invite sent\n"
@@ -129,12 +133,16 @@ if (file.exists("tmp/after.csv")) {
               msg <- paste0(
                 "Dear ", usr, ",<br><br>",
                 errorMsg, "<br>",
-                "The information provided in the BraTS 2023 Data Access Form does not match any Synapse profiles. ",
-                "Please try <a href='", config$google_form_url, "' target='_blank'>submitting the form</a> again."
+                "The information provided in the ", config$challenge_name, " Data Access Form ",
+                "does not match any Synapse profiles. Please try ",
+                "<a href='", config$google_form_url, "' target='_blank'>submitting the form</a> again."
               )
               invisible(
                 syn$sendMessage(
-                  userIds = list(id), messageSubject = "BraTS 2023 Data Access Form - Errors Found",
+                  userIds = list(id), messageSubject = paste0(
+                    config$challenge_name, 
+                    " Data Access Form - Errors Found"
+                  ),
                   messageBody = msg, contentType = "text/html"
                 )
               )
@@ -156,6 +164,7 @@ if (file.exists("tmp/after.csv")) {
     if (length(not_waitList_users) != 0) {
       invisible(
         lapply(not_waitList_users, function(usr) {
+          Sys.sleep(0.5)
           id <- tryCatch({
             syn$getUserProfile(usr)$ownerId
           }, error=function(err) {
@@ -171,11 +180,12 @@ if (file.exists("tmp/after.csv")) {
           # if users not in the pre-registrant team, but already in the validate team, like admin
           # Email will not be sent
           if (usr %in% team2_members) {
-            subject <- "BraTS 2023 Data Access Form - Access already granted"
+            subject <- paste0(config$challenge_name, " Data Access Form - Access already granted")
             msg <- paste0(
               "Dear ", usr, ",<br><br>",
-              "You have already joined the BraTS 2023 Data Access team. You may access the ",
-              "<a href='https://www.synapse.org/#!Synapse:syn51156910/files/'>BraTS 2023 data here</a>."
+              "You have already joined the ", config$challenge_name, " Data Access team. You may ",
+              "now access the <a href='https://www.synapse.org/#!Synapse:",
+              config$folder_synId,"'>challenge data</a>."
             )
             invisible(
               syn$sendMessage(
@@ -190,13 +200,13 @@ if (file.exists("tmp/after.csv")) {
               # if username is incorrect, then you wont' get an email, since we cant get their userId
               log <- "username not found\n"
             } else {
-              subject <- "BraTS 2023 Data Access Form - Errors Found"
+              subject <- paste0(config$challenge_name, " Data Access Form - Errors Found")
               msg <- paste0(
                 "Dear ", usr, ",<br><br>",
-                "You must first register and agree to the Terms and Conditions of the BraTS 2023 Challenge.",
-                "<br/><br/>If you are still interested in gaining acces to the BraTS 2023 data, please ",
-                "<a href='https://www.synapse.org/brats'>register for the challenge</a>, then submit the ",
-                "<a href='", config$google_form_url, "' target='_blank'>BraTS 2023 Data Access Form</a> again."
+                "You must first register and agree to the Terms and Conditions of the ", config$challenge_name,
+                ".<br/><br/>If you are still interested in gaining acces to the challenge data, please ",
+                "register for the challenge first, then submit the ", "<a href='", config$google_form_url,
+                "' target='_blank'>Data Access Form</a> again."
               )
               invisible(
                 syn$sendMessage(
