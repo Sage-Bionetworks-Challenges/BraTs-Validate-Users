@@ -7,7 +7,7 @@ and will check the following:
 - Does the provided Synapse username exist?
 - Is the user registered for the challenge?
 
-> [!NOTE]:
+> [!NOTE]
 > Not currently super user-friendly for non-R users.
 
 ## Getting Started
