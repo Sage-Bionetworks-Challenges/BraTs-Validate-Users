@@ -45,7 +45,7 @@ syn$login(authToken = config$pat, silent = TRUE)
 # need to successfully authenticate once in an interactive session
 # token will be store automatically; gs4_has_token()
 
-# FIXME: on instance, token is not stored and/or retreived successfully
+# FIXME: on instance, token is not stored and/or retrieved successfully
 #        when in non-interactive mode. Using gs4_deauth() for now to
 #        prevent attempt of getting credentials.
 gs4_deauth()
