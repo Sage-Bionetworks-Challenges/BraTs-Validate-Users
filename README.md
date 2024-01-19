@@ -1,23 +1,26 @@
 # BraTs-Validate-Users
 
-This is a tool to monitor google form responses. Technically, it is watching the google sheet that saves the google form's responses. The tool will detect for new submissions every minute and validate the new submission's information by followings:
+A tool that monitors Google Form responses collected in a Google Sheet.
+It will look for new submissions at a set cadence (default, 5 minutes),
+and will check the following:
 
-- whether the user name is in the preregistration team, but not the validated team
-- whether first name and last name match
-- whether user name is valid
+- Does the provided Synapse username exist?
+- Is the user registered for the challenge?
 
-Note: it is now not super friendly set up for non-R users and will improve if needed.
-## Installation
+> [!NOTE]:
+> Not currently super user-friendly for non-R users.
+
+## Getting Started
 
 * Clone the repo
 
-    ```Bash
+    ```bash
     git clone https://github.com/Sage-Bionetworks-Challenges/BraTs-Validate-Users.git
     ```
 
 * Install Miniconda
 
-    ```Bash
+    ```bash
     wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.3.1-0-Linux-x86_64.sh
     bash Miniconda3-py310_23.3.1-0-Linux-x86_64.sh
     rm Miniconda3-py310_23.3.1-0-Linux-x86_64.sh
@@ -25,44 +28,51 @@ Note: it is now not super friendly set up for non-R users and will improve if ne
 
     Restart the terminal to apply the changes.
 
-* Initiate Conda Environment
+* Initiate a Conda environment
 
-    ```Bash
+    ```bash
     conda env create -f environment.yml
     conda activate brats-tool
     ```
 
-* Install r libraries
+* Install the required libraries
 
-    ```Bash
+    ```bash
     Rscript requirements.R
     ```
 
-    Please copy and **modify** the information in `config.R`, such as 'google form questions' and 'gmail address'. After all information is filled, set the file to read only.
+* Set up your configurations for the user validation.  Update `config_example.R` and save as
+    `config.R`.  After updating, set the file to read-only.
 
-    ```
+    ```bash
     cp config_example.R config.R
-    vi config.R
+    vim config.R
     chmod 400 config.R
     ```
 
 ## Usage
 
-**Important**: for the first time running, please use Rstudio (or other interactive IDEs) to initiate `google authentication` in order to access to the google form. The `googlesheet4` package is used to read google sheet, (TODO: change to use `service_credential.json`).
+> [!IMPORTANT]
+> when running for the first time, use Rstudio (or other interactive IDEs) to initiate 
+> `google authentication` in order to access to the Google Form. The `googlesheet4` 
+> package is used to read Google Sheet, (TODO: change to use `service_credential.json`).
 
 1. Open the `setup.R` file in the Rstudio
-2. press <kbd>Control</kbd>/<kbd>Command</kbd> + <kbd>A</kbd> to select entire script
-3. press <kbd>Control</kbd>/<kbd>Command</kbd> + <kbd>enter</kbd> to run all the codes
-4. Press `1` in the console when it asks for permission to pop up browser window. Please sign in your google account which has access to the google sheet and complete the authentication.
+2. Press <kbd>Control</kbd>/<kbd>Command</kbd> + <kbd>A</kbd> to select entire script
+3. Press <kbd>Control</kbd>/<kbd>Command</kbd> + <kbd>enter</kbd> to run all the codes
+4. Press `1` in the console when it asks for permission to pop up browser window. Please
+    sign in your google account which has access to the google sheet and complete the 
+    authentication.
 
-If not the first time, simply run below code to test if all setup work and go to the next step if no errors.
+If not the first time, run the following code to test if the setup works.  If so, run the
+last command.
 
-```Bash
+```bash
 Rscript setup.R
 ```
 
 Start monitoring new submissions from the google form
 
-```Bash
+```bash
 Rscript runMonitor.R
 ```

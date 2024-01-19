@@ -15,7 +15,7 @@ cron_add(
   command = cmd,
   frequency = "*/5 * * * *",
   id = "brats",
-  description = "Review requests every 15 minutes."
+  description = "Review requests every 5 minutes."
 )
 
 # kill the job by id
