@@ -70,7 +70,7 @@ if (file.exists("tmp/after.csv")) {
     if (length(waitList_users) != 0) {
       invisible(
         lapply(waitList_users, function(usr) {
-          Sys.sleep(0.5)
+          Sys.sleep(1)
           id <- tryCatch({
               syn$getUserProfile(usr)$ownerId
             }, error=function(err) {
@@ -152,7 +152,6 @@ if (file.exists("tmp/after.csv")) {
           cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, log), collapse = ","),
             file = "log/out.log", append = TRUE
           )
-          Sys.sleep(1)
         })
       )
     }
@@ -164,7 +163,7 @@ if (file.exists("tmp/after.csv")) {
     if (length(not_waitList_users) != 0) {
       invisible(
         lapply(not_waitList_users, function(usr) {
-          Sys.sleep(0.5)
+          Sys.sleep(1)
           id <- tryCatch({
             syn$getUserProfile(usr)$ownerId
           }, error=function(err) {
@@ -220,7 +219,6 @@ if (file.exists("tmp/after.csv")) {
           cat(paste0(c(format(Sys.time(), " %Y-%m-%dT%H-%M-%S"), usr, log), collapse = ","),
             file = "log/out.log", append = TRUE
           )
-          Sys.sleep(1)
         })
       )
     }
