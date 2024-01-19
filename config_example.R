@@ -17,7 +17,7 @@ config <- list(
   validated_teamID = "", # validated team ID
   
   your_email_address = "", # email address that have access to google form/sheet
-  pat = "", # synapse PAT which can be generated here: https://www.synapse.org/#!PersonalAccessTokens:0
+  pat = "" # synapse PAT which can be generated here: https://www.synapse.org/#!PersonalAccessTokens:0
 )
 
 ######################################################
