@@ -21,9 +21,9 @@ and will check the following:
 * Install Miniconda
 
     ```bash
-    wget https://repo.anaconda.com/miniconda/Miniconda3-py310_23.3.1-0-Linux-x86_64.sh
-    bash Miniconda3-py310_23.3.1-0-Linux-x86_64.sh
-    rm Miniconda3-py310_23.3.1-0-Linux-x86_64.sh
+    wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh
+    rm Miniconda3-latest-Linux-x86_64.sh
     ```
 
     Restart the terminal to apply the changes.
