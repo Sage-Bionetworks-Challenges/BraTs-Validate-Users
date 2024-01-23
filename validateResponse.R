@@ -85,8 +85,8 @@ if (file.exists("tmp/after.csv")) {
               "Dear ", usr, ",<br><br>",
               "An email invite to join the ", validated_team_name, " has already been sent.<br/><br/>",
               "Please check your inbox or spam folder for an email from BraTS bot (brats-fets-bot@synapse.org). ",
-              "You may also respond to the invite on Synapse from your ",
-              "<a href='https://www.synapse.org/#!Profile:", id, "/teams'>Teams page</a>.",
+              "You may also respond to the invite on Synapse from the ",
+              "<a href='https://www.synapse.org/#!Team:", config$validated_teamID, "'>Team page</a>.",
               "<br/><br/> Only after joining the Data Access team will you have access to the ",
               "<a href='https://www.synapse.org/#!Synapse:", config$folder_synId,"'>challenge data</a>."
               
