@@ -70,7 +70,7 @@ if (file.exists("tmp/after.csv")) {
     if (length(waitList_users) != 0) {
       invisible(
         lapply(waitList_users, function(usr) {
-          Sys.sleep(1)
+          Sys.sleep(6)
           id <- tryCatch({
               syn$getUserProfile(usr)$ownerId
             }, error=function(err) {
@@ -163,7 +163,7 @@ if (file.exists("tmp/after.csv")) {
     if (length(not_waitList_users) != 0) {
       invisible(
         lapply(not_waitList_users, function(usr) {
-          Sys.sleep(1)
+          Sys.sleep(6)
           id <- tryCatch({
             syn$getUserProfile(usr)$ownerId
           }, error=function(err) {
