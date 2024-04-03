@@ -53,7 +53,7 @@ and will check the following:
 ## Usage
 
 > [!IMPORTANT]
-> @hen running for the first time, use Rstudio (or other interactive IDEs) to initiate 
+> When running for the first time, use Rstudio (or other interactive IDEs) to initiate 
 > `google authentication` in order to access to the Google Form. The `googlesheet4` 
 > package is used to read Google Sheet, (TODO: change to use `service_credential.json`).
 
@@ -70,7 +70,7 @@ and will check the following:
 > Error in normalizePath(conda, winslash = "/", mustWork = TRUE) :
 >    path[1]=".../bin/conda env": No such file or directory
 > ```
-> Try downgrading your version of `reticulate`:
+> Try downgrading your version of `reticulate` to 1.24:
 > ```
 > require(devtools)
 > install_version("reticulate", version = "1.24")
