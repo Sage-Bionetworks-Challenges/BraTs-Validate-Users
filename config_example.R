@@ -13,9 +13,8 @@ config <- list(
   username_question = "", # your google form question for user name
   
   challenge_name = "",  # name of the challenge
-  challenge_teamID = "", # registrant team ID
-  validated_teamID = "", # validated team ID
-  folder_synId = "syn51156910/files/", # synID to data folder
+  challenge_teamID = "", # participant team ID
+  validated_teamID = "", # data access team ID
   
   your_email_address = "", # email address that have access to google form/sheet
   pat = "" # synapse PAT which can be generated here: https://www.synapse.org/#!PersonalAccessTokens:0
@@ -35,7 +34,6 @@ config <- list(
 #   challenge_name = "BraTS Challenge",
 #   challenge_teamID = "3332433",
 #   validated_teamID = "3435342",
-#   folder_synId = "syn123/files/", OR "syn","
 #
 #   your_email_address = "brats@sagebase.org",
 #   pat = "123456abcd==="
