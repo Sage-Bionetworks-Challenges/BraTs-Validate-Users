@@ -49,13 +49,6 @@ and will check the following:
     vim config.R
     chmod 400 config.R
     ```
-* (if needed) Install the cron scheduler, set the default editor, then start the cron service.
-  
-    ```bash
-    sudo apt-get update && apt-get install cron vim
-    export EDITOR=/usr/bin/vim
-    sudo service start cron
-    ```
 
 ## Usage
 
