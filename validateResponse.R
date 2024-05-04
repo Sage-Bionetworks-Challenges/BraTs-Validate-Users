@@ -88,7 +88,7 @@ if (file.exists("tmp/after.csv")) {
               "You may also respond to the invite on Synapse from the ",
               "<a href='https://www.synapse.org/#!Team:", config$validated_teamID, "'>Team page</a>.",
               "<br/><br/> Only after joining the Data Access team will you have access to the ",
-              "<a href='https://www.synapse.org/#!Synapse:", config$folder_synId,"'>challenge data</a>."
+              "challenge data."
               
             )
             invisible(
@@ -115,9 +115,8 @@ if (file.exists("tmp/after.csv")) {
             if (identical(a, b)) { # if validate
               # invite to the team
               msg <- paste0(
-                "Thank you for your interest in the ", config$challenge_name,"! <br/><br/>",
-                "Once you click 'Join', you will be granted access to the ",
-                "<a href='https://www.synapse.org/#!Synapse:", config$folder_synId,"'>challenge data</a>."
+                "Thank you for your interest in the ", config$challenge_name," challenge! <br/><br/>",
+                "Once you click 'Join', you will be granted access to the challenge data."
               )
               syn$invite_to_team(config$validated_teamID, user=id, message=msg)
               log <- "invite sent\n"
@@ -183,8 +182,7 @@ if (file.exists("tmp/after.csv")) {
             msg <- paste0(
               "Dear ", usr, ",<br><br>",
               "You have already joined the ", config$challenge_name, " Data Access team. You may ",
-              "now access the <a href='https://www.synapse.org/#!Synapse:",
-              config$folder_synId,"'>challenge data</a>."
+              "now access the challenge data."
             )
             invisible(
               syn$sendMessage(
@@ -203,7 +201,7 @@ if (file.exists("tmp/after.csv")) {
               msg <- paste0(
                 "Dear ", usr, ",<br><br>",
                 "You must first register and agree to the Terms and Conditions of the ", config$challenge_name,
-                ".<br/><br/>If you are still interested in gaining acces to the challenge data, please ",
+                " challenge.<br/><br/>If you are still interested in gaining acces to the challenge data, please ",
                 "register for the challenge first, then submit the ", "<a href='", config$google_form_url,
                 "' target='_blank'>Data Access Form</a> again."
               )
